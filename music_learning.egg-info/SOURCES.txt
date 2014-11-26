@@ -1,0 +1,9 @@
+setup.py
+music-learning/__init__.py
+music-learning/tests.py
+music_learning/__init__.py
+music_learning/tests.py
+music_learning.egg-info/PKG-INFO
+music_learning.egg-info/SOURCES.txt
+music_learning.egg-info/dependency_links.txt
+music_learning.egg-info/top_level.txt
