@@ -1,4 +1,4 @@
 .idea
 test.py
-music_learning/*.pyc
+mudpy/*.pyc
 *.egg-info

@@ -7,7 +7,7 @@ import theano.tensor as T
 from multiplelayer import MLP
 from mfcc import Mfcc
 
-def calc_prediction(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_hidden=500):
+def calc_prediction(learning_time=10, learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_hidden=500):
 
     mfcc_dir1 = './mfcc1/'
     mfcc_dir2 = './mfcc2/'
@@ -24,10 +24,9 @@ def calc_prediction(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_hidden=500
     ######################
     print '... building the model'
 
-    index = T.lscalar()  # index to a [mini]batch
-    x = T.matrix('x')  # the data is presented as rasterized images
-    y = T.ivector('y')  # the labels are presented as 1D vector of
-                        # [int] labels
+    index = T.lscalar()
+    x = T.matrix('x')
+    y = T.ivector('y')
 
     rng = np.random.RandomState(1234)
 
@@ -75,7 +74,7 @@ def calc_prediction(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_hidden=500
     # TRAIN  #
     ##########
 
-    for i in range(10):
+    for i in range(learning_time):
         pred = train_model()
 
 
