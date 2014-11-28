@@ -8,70 +8,14 @@ import theano
 import theano.tensor as T
 
 from logisticregression import LogisticRegression
-
-def load_mfcc(mfcc_file, m):
-
-    mfcc = []
-    fp = open(mfcc_file, "rb")
-    while True:
-        b = fp.read(4)
-        if b == "": break
-        val = struct.unpack("f", b)[0]
-        mfcc.append(val)
-    fp.close()
-
-    mfcc = np.array(mfcc)
-    num_frame = len(mfcc) / m
-    mfcc = mfcc.reshape(num_frame, m)
-
-    return mfcc
-
-def create_mfcc(mfccDir):
-
-    all_mfcc_1d = []
-
-    for i,file in enumerate(os.listdir(mfccDir)):
-        if not file.endswith(".mfc"): continue
-        mfccFile = os.path.join(mfccDir, file)
-
-        mfcc = load_mfcc(mfccFile, 20)
-        mfcc_1d = []
-        for i in xrange(len(mfcc)):
-            mfcc_1d.extend(mfcc[i])
-
-        all_mfcc_1d.append(mfcc_1d)
-
-    return all_mfcc_1d
-
-def make_data(mfcc_dir1, mfcc_dir2):
-    mfcc_dir1 = './mfcc1/'
-    mfccs1 = create_mfcc(mfcc_dir1)
-    num_mfccs1 = len(mfccs1)
-    classes1 = [ 0 for _ in xrange(num_mfccs1)]
-
-    mfcc_dir2 = './mfcc2/'
-    mfccs2 = create_mfcc(mfcc_dir2)
-    num_mfccs2 = len(mfccs2)
-    classes2 = [ 1 for _ in xrange(num_mfccs2)]
-
-    data_x=[]
-    data_x.extend(mfccs1)
-    data_x.extend(mfccs2)
-    data_y=[]
-    data_y.extend(classes1)
-    data_y.extend(classes2)
-
-    return data_x, data_y
-
+from mfcc import Mfcc
 
 def calc_prediction(learning_rate=0.13, class_num=2):
 
-    # data_x = [[[1.,2.],[1.,2.]],[[1.,2.],[1.,2.]]]
-    # data_y = [1,1]
-
     mfcc_dir1 = './mfcc1/'
     mfcc_dir2 = './mfcc2/'
-    data_x, data_y = make_data(mfcc_dir1, mfcc_dir2)
+    mfcc = Mfcc(mfcc_dir1, mfcc_dir2)
+    data_x, data_y = mfcc.get_data()
     mfcc_dim = len(data_x[0])
 
     input_x = theano.shared(np.asarray(data_x,dtype=theano.config.floatX),borrow=True)
