@@ -25,6 +25,8 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
     input_y = theano.shared(np.asarray(data_y,dtype=theano.config.floatX),borrow=True)
     input_y = T.cast(input_y, 'int32')
 
+    print len(input_x.eval()[0])
+
     ######################
     # BUILD ACTUAL MODEL #
     ######################
@@ -107,7 +109,26 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
     for i in range(learning_time):
         pred = train_model()
 
-    print layer0.W.eval()
+    ###############
+    # prediction  #
+    ###############
+
+    # when predict all probability
+    probability_model = theano.function(inputs=[],
+            outputs=layer3.p_y_given_x,
+            givens={
+                x: input_x[:batch_size]})
+
+    # when predict argmax
+    predict_model = theano.function(inputs=[],
+            outputs=layer3.y_pred,
+            givens={
+                x: input_x[:batch_size]})
+
+    print "all probability is: "
+    print probability_model()
+    print "predicted digit is: "
+    print predict_model()
 
 if __name__ == '__main__':
     evaluate_lenet5()
