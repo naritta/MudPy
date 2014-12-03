@@ -34,6 +34,9 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
     x = T.matrix('x')
     y = T.ivector('y')
 
+    poolsize_raw = 2
+    poolsize_dim = 2
+
     layer0_input = x.reshape((batch_size, 1, mfcc_raw, mfcc_dim))
 
     filter_raw0 = 1002
@@ -44,25 +47,33 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
         input=layer0_input,
         image_shape=(batch_size, 1, mfcc_raw, mfcc_dim),
         filter_shape=(cnn_layer_units[0], 1, filter_raw0, filter_dim0),
-        poolsize=(2, 2)
+        poolsize=(poolsize_raw, poolsize_dim)
     )
 
-    
+    layer0_output_raw = (mfcc_raw-filter_raw0+1)/poolsize_raw
+    layer0_output_dim = (mfcc_dim-filter_dim0+1)/poolsize_dim
+
+
+    filter_raw1 = 201
+    filter_dim1 = 2
 
     layer1 = ConvolutionalLayer(
         rng,
         input=layer0.output,
-        image_shape=(batch_size, cnn_layer_units[0], 1000, 5),
-        filter_shape=(cnn_layer_units[1], cnn_layer_units[0], 201, 2),
-        poolsize=(2, 2)
+        image_shape=(batch_size, cnn_layer_units[0], layer0_output_raw, layer0_output_dim),
+        filter_shape=(cnn_layer_units[1], cnn_layer_units[0], filter_raw1, filter_dim1),
+        poolsize=(poolsize_raw, poolsize_dim)
     )
+
+    layer1_output_raw = (layer0_output_raw-filter_raw1+1)/poolsize_raw
+    layer1_output_dim = (layer0_output_dim-filter_dim1+1)/poolsize_dim
 
     layer2_input = layer1.output.flatten(class_num)
 
     layer2 = HiddenLayer(
         rng,
         input=layer2_input,
-        n_in=cnn_layer_units[1] * 400 * 2,
+        n_in=cnn_layer_units[1] * layer1_output_raw * layer1_output_dim,
         n_out=10,
         activation=T.tanh
     )
