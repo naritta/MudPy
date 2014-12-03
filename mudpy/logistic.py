@@ -89,5 +89,7 @@ def calc_prediction(learning_rate=0.13, class_num=2):
     print "predicted digit is: "
     print predict_model(1)
 
+    print classifier.W.get_value()
+
 if __name__ == '__main__':
     calc_prediction()
