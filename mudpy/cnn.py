@@ -10,7 +10,7 @@ from multiplelayer import HiddenLayer
 from logisticregression import LogisticRegression
 from convolutional import ConvolutionalLayer
 
-def evaluate_lenet5(learning_rate=0.1,nkerns=[10, 20], batch_size=4):
+def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20], batch_size=4,class_num=2):
 
     rng = np.random.RandomState(23455)
 
@@ -19,6 +19,8 @@ def evaluate_lenet5(learning_rate=0.1,nkerns=[10, 20], batch_size=4):
     mfcc = Mfcc(mfcc_dir1, mfcc_dir2)
     data_x, data_y = mfcc.get_data()
     mfcc_dim = len(data_x[0])
+
+    print mfcc_dim
 
     input_x = theano.shared(np.asarray(data_x,dtype=theano.config.floatX),borrow=True)
     input_y = theano.shared(np.asarray(data_y,dtype=theano.config.floatX),borrow=True)
@@ -39,15 +41,15 @@ def evaluate_lenet5(learning_rate=0.1,nkerns=[10, 20], batch_size=4):
         rng,
         input=layer0_input,
         image_shape=(batch_size, 1, 3001, 20),
-        filter_shape=(nkerns[0], 1, 1002, 11),
+        filter_shape=(cnn_layer_units[0], 1, 1002, 11),
         poolsize=(2, 2)
     )
 
     layer1 = ConvolutionalLayer(
         rng,
         input=layer0.output,
-        image_shape=(batch_size, nkerns[0], 1000, 5),
-        filter_shape=(nkerns[1], nkerns[0], 201, 2),
+        image_shape=(batch_size, cnn_layer_units[0], 1000, 5),
+        filter_shape=(cnn_layer_units[1], cnn_layer_units[0], 201, 2),
         poolsize=(2, 2)
     )
 
@@ -56,12 +58,12 @@ def evaluate_lenet5(learning_rate=0.1,nkerns=[10, 20], batch_size=4):
     layer2 = HiddenLayer(
         rng,
         input=layer2_input,
-        n_in=nkerns[1] * 400 * 2,
+        n_in=cnn_layer_units[1] * 400 * 2,
         n_out=10,
         activation=T.tanh
     )
 
-    layer3 = LogisticRegression(input=layer2.output, n_in=10, n_out=2)
+    layer3 = LogisticRegression(input=layer2.output, n_in=10, n_out=class_num)
 
     cost = layer3.negative_log_likelihood(y)
 
@@ -87,11 +89,7 @@ def evaluate_lenet5(learning_rate=0.1,nkerns=[10, 20], batch_size=4):
     ###############
     print '... training'
 
-    ##########
-    # TRAIN  #
-    ##########
-
-    for i in range(2):
+    for i in range(learning_time):
         pred = train_model()
 
     print layer0.W.eval()
