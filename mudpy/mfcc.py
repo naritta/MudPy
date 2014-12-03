@@ -5,9 +5,11 @@ import numpy as np
 
 class Mfcc():
 
-    def __init__(self,mfcc_dir1, mfcc_dir2):
+    def __init__(self,mfcc_dir1, mfcc_dir2,dim=20,raw=3001):
         self.mfcc_dir1 = mfcc_dir1
         self.mfcc_dir2 = mfcc_dir2
+        self.dim = dim
+        self.raw = raw
 
     def load_mfcc(self,mfcc_file, m):
 
@@ -61,4 +63,10 @@ class Mfcc():
         data_y.extend(classes2)
 
         return data_x, data_y
+
+    def get_dim(self):
+        return self.dim
+
+    def get_raw(self):
+        return self.raw
 

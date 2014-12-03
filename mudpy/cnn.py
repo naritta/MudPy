@@ -18,9 +18,8 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
     mfcc_dir2 = './mfcc2/'
     mfcc = Mfcc(mfcc_dir1, mfcc_dir2)
     data_x, data_y = mfcc.get_data()
-    mfcc_dim = len(data_x[0])
-
-    print mfcc_dim
+    mfcc_dim = mfcc.get_dim()
+    mfcc_raw = mfcc.get_raw()
 
     input_x = theano.shared(np.asarray(data_x,dtype=theano.config.floatX),borrow=True)
     input_y = theano.shared(np.asarray(data_y,dtype=theano.config.floatX),borrow=True)
@@ -35,15 +34,20 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
     x = T.matrix('x')
     y = T.ivector('y')
 
-    layer0_input = x.reshape((batch_size, 1, 3001, 20))
+    layer0_input = x.reshape((batch_size, 1, mfcc_raw, mfcc_dim))
+
+    filter_raw0 = 1002
+    filter_dim0 = 11
 
     layer0 = ConvolutionalLayer(
         rng,
         input=layer0_input,
-        image_shape=(batch_size, 1, 3001, 20),
-        filter_shape=(cnn_layer_units[0], 1, 1002, 11),
+        image_shape=(batch_size, 1, mfcc_raw, mfcc_dim),
+        filter_shape=(cnn_layer_units[0], 1, filter_raw0, filter_dim0),
         poolsize=(2, 2)
     )
+
+    
 
     layer1 = ConvolutionalLayer(
         rng,
@@ -53,7 +57,7 @@ def evaluate_lenet5(learning_time=2, learning_rate=0.1,cnn_layer_units=[10, 20],
         poolsize=(2, 2)
     )
 
-    layer2_input = layer1.output.flatten(2)
+    layer2_input = layer1.output.flatten(class_num)
 
     layer2 = HiddenLayer(
         rng,
